@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1920, initial-scale=1" />
+  <title>Помощник к ЕГЭ — фронтенд</title>
+  <style>
+    :root{
+      --bg: #ffffff;
+      --surface: #f6f7fb;
+      --muted: #6b7280;
+      --text: #0b1220;
+      --primary: #2563eb;
+      --accent-green-1: #d1fae5;
+      --accent-green-2: #86efac;
+      --accent-green-3: #34d399;
+      --accent-green-4: #059669;
+      --card-border: #e6e9ef;
+      --max-width: 1920px;
+      --btn-min-height: 44px;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
+    .page { width:100%; max-width:var(--max-width); margin:12px auto; padding:20px; box-sizing:border-box; min-height:100vh; }
+    header { height:88px; display:flex; align-items:center; justify-content:space-between; gap:20px; background:var(--surface); border-radius:10px; padding:0 28px; border:1px solid var(--card-border); }
+    .brand { font-weight:800; font-size:22px; color:var(--text); text-decoration:none; cursor:pointer; user-select:none; }
+    .nav { display:flex; gap:18px; align-items:center; margin-left:18px; }
+    .nav-item { position:relative; font-weight:700; color:var(--muted); padding:8px 10px; border-radius:8px; cursor:pointer; }
+    .dropdown-menu { position:absolute; top:46px; left:0; min-width:220px; background:#fff; border:1px solid var(--card-border); border-radius:8px; box-shadow: 0 12px 30px rgba(11,18,32,0.06); z-index:60; display:none; padding:6px; }
+    .dropdown-option { display:block; width:100%; text-align:left; padding:10px 12px; font-weight:700; color:var(--text); background:none; border:0; cursor:pointer; border-radius:6px; }
+    .dropdown-option:hover { background:#f3f4f6; }
+    .auth { display:flex; gap:12px; align-items:center; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; padding:10px 18px; border-radius:10px; font-weight:800; cursor:pointer; border:0; text-align:center; user-select:none; min-height:var(--btn-min-height); box-sizing:border-box; }
+    .btn.primary { background:var(--primary); color:#fff; box-shadow: 0 6px 18px rgba(37,99,235,0.12); }
+    .btn.ghost { background:transparent; color:var(--primary); border:2px solid var(--primary); font-weight:700; }
+    .btn.secondary { background:transparent; color:var(--muted); border-radius:8px; padding:8px 12px; border:1px solid rgba(0,0,0,0.03); }
+    main { margin-top:18px; }
+    .layout { display:flex; gap:22px; align-items:flex-start; }
+    .left { width:520px; display:flex; flex-direction:column; gap:18px; }
+    .right { flex:1; min-width:820px; }
+    .card { background:var(--surface); border-radius:12px; padding:16px; border:1px solid var(--card-border); box-sizing:border-box; }
+    .card h3 { margin:0;font-size:18px; }
+    p.muted { color:var(--muted); margin:8px 0 0 0; }
+    .calendar { background:#fff; padding:16px; border-radius:12px; border:1px solid var(--card-border); }
+    .calendar-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; margin-top:12px; }
+    .cell { height:88px; border-radius:8px; padding:10px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:space-between; cursor:pointer; border:1px solid transparent; overflow:hidden; }
+    .cell.empty { background:#f3f4f6; color:#374151; }
+    .cell.g1 { background:var(--accent-green-1); }
+    .cell.g2 { background:var(--accent-green-2); }
+    .cell.g3 { background:var(--accent-green-3); color:#fff; }
+    .cell.g4 { background:var(--accent-green-4); color:#fff; }
+    .day-num { font-weight:800; font-size:14px; }
+    .day-count { font-weight:900; font-size:18px; align-self:flex-end; }
+    .tasks-list { margin-top:12px; display:flex; flex-direction:column; gap:12px; }
+    .task { background:#fff; padding:14px; border-radius:10px; border:1px solid var(--card-border); position:relative; box-sizing:border-box; padding-bottom:64px; }
+    .task .title { font-weight:800; font-size:16px; word-wrap:break-word; }
+    .task .tag { font-size:12px; color:var(--muted); padding:6px 8px; border-radius:8px; background:transparent; border:1px solid rgba(0,0,0,0.04); display:inline-block; margin-top:8px; }
+    .task .actions { position:absolute; right:12px; bottom:12px; display:flex; gap:8px; }
+    .task-full { background:#fff; padding:18px; border-radius:10px; border:1px solid var(--card-border); box-sizing:border-box; }
+    .task-full .content { white-space:pre-wrap; line-height:1.45; color:var(--text); }
+    label{display:block;font-weight:700;margin-top:12px;margin-bottom:6px;}
+    input[type="text"], input[type="email"], input[type="password"], textarea { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ddd; box-sizing:border-box; font-size:15px; }
+    textarea { min-height:160px; resize:vertical; }
+    footer { margin-top:18px; color:var(--muted); font-size:13px; text-align:center; }
+    .month-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .month-title { font-weight:900; font-size:16px; }
+    .month-controls { display:flex; gap:8px; align-items:center; }
+    @media(max-width:1180px){
+      .layout{flex-direction:column;}
+      .left{width:100%;}
+      .right{min-width:unset;}
+      .modal{width:92%}
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="app">
+    <header>
+      <div style="display:flex;align-items:center;">
+        <a class="brand" id="brand">Помощник к ЕГЭ</a>
+        <nav class="nav" aria-label="Главное меню">
+          <div class="nav-item" id="navDashboard">Главная</div>
+          <div class="nav-item" id="navTasks" tabindex="0" aria-haspopup="true" aria-expanded="false">
+            Задачи ▾
+            <div class="dropdown-menu" id="tasksMenu" role="menu" aria-hidden="true">
+              <button class="dropdown-option" data-action="all">1. Вся база задач</button>
+              <button class="dropdown-option" data-action="random">2. Случайная задача из базы</button>
+              <button class="dropdown-option" data-action="solved">3. Решенные задачи</button>
+            </div>
+          </div>
+          <div class="nav-item" id="navFavs">Избранное</div>
+        </nav>
+      </div>
+      <div class="auth" id="authArea"></div>
+    </header>
+
+    <main>
+      <!-- DASHBOARD -->
+      <section id="page-dashboard" style="display:block;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <h1 style="margin:8px 0 6px 0;">Добро пожаловать в Помощник к ЕГЭ</h1>
+            <div class="muted">Сайт предоставляет: базу задач ЕГЭ по информатике, возможность добавлять свои задачи и отслеживание своего прогресса.</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="muted" id="userGreeting">Неавторизован</div>
+          </div>
+        </div>
+
+        <div class="layout" style="margin-top:18px;">
+          <aside class="left">
+            <div class="card">
+              <h3>База задач</h3>
+              <p class="muted">Решай задачи из собственной базы, отмечай решённые и сохраняй избранные.</p>
+              <div style="margin-top:12px;"><button class="btn primary" id="openAllTasks">Открыть задачи</button></div>
+            </div>
+
+            <div class="card">
+              <h3>Добавляй личные задачи</h3>
+              <p class="muted">Добавляй личные задачи — они попадут в базу и будут предлагаться вместе с остальными.</p>
+              <div style="margin-top:12px;"><button class="btn ghost" id="openAddTask">Добавить свою задачу</button></div>
+            </div>
+
+            <div class="card" id="profileExampleCard">
+              <h3>Прогресс</h3>
+              <p class="muted">Календарь показывает дни с решёнными задачами. Оттенок зелёного темнее при большем количестве решённых задач.</p>
+              <div style="margin-top:12px;"><button class="btn ghost" id="openProfileExample">Пример профиля</button></div>
+            </div>
+          </aside>
+
+          <section class="right">
+            <div class="calendar card" aria-label="Календарь">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-weight:900;">Календарь</div>
+                <div class="muted" style="font-size:13px;">Нажмите на день, чтобы ввести количество решённых задач</div>
+              </div>
+
+              <!-- MONTH NAV -->
+              <div class="month-nav" style="margin-top:12px;">
+                <div class="month-title" id="monthTitle">—</div>
+                <div class="month-controls">
+                  <button class="btn ghost" id="monthPrev">◀</button>
+                  <button class="btn ghost" id="monthNext">▶</button>
+                </div>
+                <div style="margin-left:12px;" id="monthTotal" class="muted">Решено в месяце: 0</div>
+              </div>
+
+              <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="Календарь месяца"></div>
+
+              <div style="display:flex;margin-top:12px;gap:12px;align-items:center;">
+                <button class="btn primary" id="btnGetToday">Начать — получить задачу на сегодня</button>
+                <div class="muted" style="margin-left:12px;">(Случайная задача исключает уже решённые)</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:18px;">
+              <div class="stat"><div class="muted" style="font-size:13px;">Всего решено</div><div id="statSolved" style="font-weight:900;font-size:22px;margin-top:8px;">0</div></div>
+              <div class="stat"><div class="muted" style="font-size:13px;">Среднее за всё время</div><div id="statAvg" style="font-weight:900;font-size:22px;margin-top:8px;">0.0</div></div>
+              <div class="stat"><div class="muted" style="font-size:13px;">Дней подряд</div><div id="statStreak" style="font-weight:900;font-size:22px;margin-top:8px;">0</div></div>
+            </div>
+
+          </section>
+        </div>
+      </section>
+
+      <!-- TASKS LIST -->
+      <section id="page-tasks" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2>Все задачи</h2>
+          <div><button class="btn ghost" id="backToDashboard">На главную</button></div>
+        </div>
+        <div class="card">
+          <div class="tasks-list" id="tasksList"></div>
+        </div>
+      </section>
+
+      <!-- SINGLE TASK PAGE -->
+      <section id="page-task-view" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2 id="viewTaskTitle">Задача</h2>
+          <div>
+            <button class="btn ghost" id="backFromTaskView">Назад</button>
+          </div>
+        </div>
+        <div class="task-full card">
+          <div class="tag" id="viewTaskTag" style="margin-bottom:10px;"></div>
+          <div class="content" id="viewTaskContent"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;" id="viewTaskActions">
+            <button class="btn ghost" id="viewSaveFav">Сохранить</button>
+            <button class="btn primary" id="viewMarkSolved">Решена</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAVORITES -->
+      <section id="page-favs" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2>Избранное</h2>
+          <div><button class="btn ghost" id="backFromFavs">Назад</button></div>
+        </div>
+        <div class="card"><div class="tasks-list" id="favsList"></div></div>
+      </section>
+
+      <!-- SOLVED / ARCHIVE -->
+      <section id="page-solved" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2>Решённые задачи (Архив)</h2>
+          <div><button class="btn ghost" id="backFromSolved">Назад</button></div>
+        </div>
+        <div class="card"><div class="tasks-list" id="solvedList"></div></div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="page-profile" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2>Профиль</h2>
+          <div><button class="btn ghost" id="logoutBtn">Выйти</button></div>
+        </div>
+
+        <div class="layout">
+          <div class="left">
+            <div class="card" id="profileCard"></div>
+            <div class="card">
+              <h3>Действия</h3>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="btn primary" id="btnAddOwnFromProfile">Добавить свою задачу</button>
+                <button class="btn ghost" id="btnViewArchive">Архив задач</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1;">
+            <div class="card">
+              <h3>Детальная статистика</h3>
+              <div style="display:flex;gap:12px;margin-top:12px;">
+                <div style="flex:1;">
+                  <div class="muted" style="font-size:13px;">Последние решённые</div>
+                  <ul id="recentSolved" style="padding-left:18px;margin-top:8px;color:var(--muted)"></ul>
+                </div>
+                <div style="width:320px;">
+                  <div class="muted" style="font-size:13px;">Цели</div>
+                  <div style="margin-top:8px;color:var(--muted)">Поставьте цель — например 5 задач в день</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADD TASK -->
+      <section id="page-addtask" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2>Добавить свою задачу</h2>
+          <div><button class="btn ghost" id="backFromAdd">Назад</button></div>
+        </div>
+        <div class="card" style="max-width:1100px;">
+          <label>Название</label>
+          <input id="newTitle" type="text" placeholder="Краткое название задачи" />
+          <label>Условие</label>
+          <textarea id="newContent" placeholder="Полное условие задачи"></textarea>
+          <div style="margin-top:12px;"><button class="btn primary" id="btnSubmitNew">Добавить задачу</button></div>
+        </div>
+      </section>
+
+      <!-- AUTH / REGISTER / RECOVERY -->
+      <section id="page-auth" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2 id="authTitle">Вход</h2>
+          <div><button class="btn ghost" id="backFromAuth">Назад</button></div>
+        </div>
+        <div class="card" style="max-width:720px;">
+          <div id="authContent">
+            <div id="formLogin">
+              <label>Электронная почта</label>
+              <input id="loginEmail" type="email" placeholder="Введите свою почту" />
+              <label>Пароль</label>
+              <input id="loginPassword" type="password" placeholder="Введите пароль" />
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+                <button class="btn primary" id="doLogin">Войти</button>
+                <button class="link" id="linkToRecovery" style="background:none;border:0;color:var(--primary);cursor:pointer;font-weight:800;">Восстановить пароль</button>
+              </div>
+            </div>
+
+            <div id="formRegister" style="display:none;">
+              <label>Имя</label><input id="regFirst" type="text" placeholder="Введите имя" />
+              <label>Фамилия</label><input id="regLast" type="text" placeholder="Введите фамилию" />
+              <label>Электронная почта</label><input id="regEmail" type="email" placeholder="Введите свою почту" />
+              <label>Пароль</label><input id="regPass" type="password" placeholder="Введите пароль" />
+              <label>Подтверждение пароля</label><input id="regPass2" type="password" placeholder="Подтвердите пароль" />
+              <label>Кодовое слово (для восстановления)</label><input id="regCodeword" type="text" placeholder="Придумайте кодовое слово" />
+              <div style="margin-top:12px;"><button class="btn primary" id="doRegister">Зарегистрироваться</button></div>
+            </div>
+
+            <div id="formRecovery" style="display:none;">
+              <label>Электронная почта</label><input id="recEmail" type="email" placeholder="Введите свою почту" />
+              <label>Кодовое слово</label><input id="recCodeword" type="text" placeholder="Введите кодовое слово, указанное при регистрации" />
+              <label>Новый пароль</label><input id="recPass" type="password" placeholder="Новый пароль" />
+              <div style="margin-top:12px;"><button class="btn primary" id="btnVerifyRecovery">Отправить</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+<script>
+/* Frontend talking to Flask backend under /api/... */
+const USE_BACKEND = true;
+function qs(sel, root=document){ return root.querySelector(sel); }
+function qsa(sel, root=document){ return Array.from((root||document).querySelectorAll(sel)); }
+function fmtDate(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+let calendarState = {
+  year: (new Date()).getFullYear(),
+  month: (new Date()).getMonth() // 0-based
+};
+
+/* Show login page with registration hint */
+let __lastAuthPrompt = 0;
+function showLoginWithRegHint() {
+  if(Date.now() - __lastAuthPrompt < 600) return;
+  __lastAuthPrompt = Date.now();
+  qs('#authTitle').textContent = 'Вход';
+  if(qs('#formLogin')) qs('#formLogin').style.display = 'block';
+  if(qs('#formRegister')) qs('#formRegister').style.display = 'none';
+  if(qs('#formRecovery')) qs('#formRecovery').style.display = 'none';
+  showSection('auth');
+  if(!qs('#authRegHint')) {
+    const hint = document.createElement('div');
+    hint.id = 'authRegHint';
+    hint.style.marginTop = '8px';
+    hint.innerHTML = 'Нет аккаунта? <a href="#" id="authRegLink">Регистрация</a>';
+    const authContent = qs('#authContent');
+    if(authContent) authContent.insertBefore(hint, authContent.firstChild);
+    const link = qs('#authRegLink');
+    if(link){
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        qs('#authTitle').textContent = 'Регистрация';
+        qs('#formLogin').style.display = 'none';
+        qs('#formRegister').style.display = 'block';
+        qs('#formRecovery').style.display = 'none';
+        const f = qs('#regFirst'); if(f) f.focus();
+        const h = qs('#authRegHint'); if(h) h.remove();
+      });
+    }
+  }
+}
+
+/* API wrapper — НЕ открываем вход автоматически на 401 (вернём статус вызывающему) */
+async function api(path, method='GET', body=null){
+  if(!USE_BACKEND) return { ok:false, status:0, json:{ error: 'backend_disabled' } };
+  const opts = { method, credentials: 'include', headers: {} };
+  if(body !== null){ opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  try {
+    const res = await fetch('/api' + path, opts);
+    let json = null;
+    try{ json = await res.json(); }catch(e){}
+    // возвращаем ответ вызывающему — не показываем login здесь
+    return { ok: res.ok, status: res.status, json };
+  } catch(e){
+    console.error('API error', e);
+    return { ok:false, status:0, json:null };
+  }
+}
+
+/* Sections */
+const SECTIONS = {
+  dashboard: qs('#page-dashboard'),
+  tasks: qs('#page-tasks'),
+  taskView: qs('#page-task-view'),
+  favs: qs('#page-favs'),
+  solved: qs('#page-solved'),
+  profile: qs('#page-profile'),
+  addtask: qs('#page-addtask'),
+  auth: qs('#page-auth')
+};
+
+function showSection(name){
+  Object.values(SECTIONS).forEach(s=>s.style.display='none');
+  if(SECTIONS[name]) SECTIONS[name].style.display='block';
+  window.scrollTo(0,0);
+  if(name==='dashboard') loadCalendarForCurrentMonth();
+  if(name==='tasks') fetchTasksAndRender();
+  if(name==='favs') fetchFavsAndRender();
+  if(name==='solved') fetchSolvedAndRender();
+  if(name==='profile') renderProfileFromServer();
+}
+
+/* Dropdown */
+(function setupDropdown(){
+  const nav = qs('#navTasks'); const menu = qs('#tasksMenu');
+  let open=false, tId=null;
+  function openMenu(){ clearTimeout(tId); menu.style.display='block'; menu.setAttribute('aria-hidden','false'); nav.setAttribute('aria-expanded','true'); open=true; }
+  function closeMenu(){ clearTimeout(tId); menu.style.display='none'; menu.setAttribute('aria-hidden','true'); nav.setAttribute('aria-expanded','false'); open=false; }
+  if(nav){
+    nav.addEventListener('mouseenter', openMenu);
+    nav.addEventListener('focus', openMenu);
+    nav.addEventListener('click', e=>{ e.stopPropagation(); openMenu(); });
+    nav.addEventListener('mouseleave', ()=>{ tId=setTimeout(closeMenu,250); });
+  }
+  if(menu){
+    menu.addEventListener('mouseenter', openMenu);
+    menu.addEventListener('mouseleave', ()=>{ tId=setTimeout(closeMenu,250); });
+    document.addEventListener('click', ()=>{ if(open) closeMenu(); });
+    qsa('.dropdown-option', menu).forEach(btn=>{
+      btn.addEventListener('click', (ev)=>{
+        const action = ev.currentTarget.dataset.action;
+        if(action==='all'){ showSection('tasks'); }
+        else if(action==='random'){ getRandomTaskFromServer(); }
+        else if(action==='solved'){ showSection('solved'); fetchSolvedAndRender(); }
+        closeMenu();
+      });
+    });
+  }
+})();
+
+/* Auth area */
+async function updateAuthArea(){
+  const container = qs('#authArea'); if(!container) return;
+  container.innerHTML = '';
+  if(!USE_BACKEND){
+    const inBtn = document.createElement('button'); inBtn.className='btn ghost'; inBtn.textContent='Войти';
+    inBtn.addEventListener('click', ()=>{ qs('#authTitle').textContent='Вход'; qs('#formLogin').style.display='block'; qs('#formRegister').style.display='none'; qs('#formRecovery').style.display='none'; showSection('auth'); });
+    const regBtn = document.createElement('button'); regBtn.className='btn primary'; regBtn.textContent='Регистрация';
+    regBtn.addEventListener('click', ()=>{ qs('#authTitle').textContent='Регистрация'; qs('#formLogin').style.display='none'; qs('#formRegister').style.display='block'; qs('#formRecovery').style.display='none'; const hint = qs('#authRegHint'); if(hint) hint.remove(); showSection('auth'); });
+    container.appendChild(inBtn); container.appendChild(regBtn);
+    const pe = qs('#profileExampleCard'); if(pe) pe.style.display = 'block';
+    const ug = qs('#userGreeting'); if(ug) ug.textContent = 'Неавторизован';
+    return;
+  }
+
+  const res = await api('/profile/', 'GET');
+  if(res.ok && res.json){
+    const nameBtn = document.createElement('button'); nameBtn.className = 'btn secondary'; nameBtn.textContent = `${res.json.first_name} ${res.json.last_name}`;
+    nameBtn.addEventListener('click', ()=>{ showSection('profile'); renderProfileFromServer(); });
+    const outBtn = document.createElement('button'); outBtn.className = 'btn ghost'; outBtn.textContent = 'Выйти';
+    outBtn.addEventListener('click', async ()=>{ await api('/logout/','POST',{}); handleNotAuth(); showSection('dashboard'); });
+    container.appendChild(nameBtn); container.appendChild(outBtn);
+    const pe = qs('#profileExampleCard'); if(pe) pe.style.display = 'none';
+    const ug = qs('#userGreeting'); if(ug) ug.textContent = `${res.json.first_name} ${res.json.last_name}`;
+    return;
+  }
+
+  const inBtn = document.createElement('button'); inBtn.className='btn ghost'; inBtn.textContent='Войти';
+  inBtn.addEventListener('click', ()=>{ qs('#authTitle').textContent='Вход'; qs('#formLogin').style.display='block'; qs('#formRegister').style.display='none'; qs('#formRecovery').style.display='none'; showSection('auth'); });
+  const regBtn = document.createElement('button'); regBtn.className='btn primary'; regBtn.textContent='Регистрация';
+  regBtn.addEventListener('click', ()=>{ qs('#authTitle').textContent='Регистрация'; qs('#formLogin').style.display='none'; qs('#formRegister').style.display='block'; qs('#formRecovery').style.display='none'; const hint = qs('#authRegHint'); if(hint) hint.remove(); showSection('auth'); });
+  container.appendChild(inBtn); container.appendChild(regBtn);
+  const pe = qs('#profileExampleCard'); if(pe) pe.style.display = 'block';
+  const ug = qs('#userGreeting'); if(ug) ug.textContent = 'Неавторизован';
+}
+
+/* handle not-auth */
+function handleNotAuth(){
+  const statSolved = qs('#statSolved'); if(statSolved) statSolved.textContent = '0';
+  const statAvg = qs('#statAvg'); if(statAvg) statAvg.textContent = '0.0';
+  const statStreak = qs('#statStreak'); if(statStreak) statStreak.textContent = '0';
+  const recent = qs('#recentSolved'); if(recent) recent.innerHTML = '';
+  const container = qs('#authArea');
+  if(container){
+    container.innerHTML = '';
+    const inBtn = document.createElement('button'); inBtn.className='btn ghost'; inBtn.textContent='Войти';
+    const regBtn = document.createElement('button'); regBtn.className='btn primary'; regBtn.textContent='Регистрация';
+    inBtn.addEventListener('click', ()=>{ qs('#authTitle').textContent='Вход'; qs('#formLogin').style.display='block'; qs('#formRegister').style.display='none'; qs('#formRecovery').style.display='none'; showSection('auth'); });
+    regBtn.addEventListener('click', ()=>{ qs('#authTitle').textContent='Регистрация'; qs('#formLogin').style.display='none'; qs('#formRegister').style.display='block'; qs('#formRecovery').style.display='none'; const hint = qs('#authRegHint'); if(hint) hint.remove(); showSection('auth'); });
+    container.appendChild(inBtn); container.appendChild(regBtn);
+  }
+  const pe = qs('#profileExampleCard'); if(pe) pe.style.display = 'block';
+  const ug = qs('#userGreeting'); if(ug) ug.textContent = 'Неавторизован';
+  loadCalendarForCurrentMonth();
+}
+
+/* AUTH actions (same as before) */
+qs('#doRegister').addEventListener('click', async ()=>{
+  if(!USE_BACKEND) { alert('Бэкенд отключён'); return; }
+  const first = qs('#regFirst').value.trim();
+  const last = qs('#regLast').value.trim();
+  const email = qs('#regEmail').value.trim().toLowerCase();
+  const pass = qs('#regPass').value;
+  const pass2 = qs('#regPass2').value;
+  const codeword = qs('#regCodeword').value.trim();
+  if(!first || !last || !email || !pass || !pass2 || !codeword){ alert('Все поля обязательны'); return; }
+  if(pass !== pass2){ alert('Пароли не совпадают'); return; }
+  const res = await api('/register/', 'POST', { first_name:first, last_name:last, email, password:pass, password2:pass2, codeword });
+  if(!res.ok){
+    if(res.status === 401){ return; }
+    alert(res.json && res.json.message ? 'Ошибка: ' + res.json.message : 'Ошибка регистрации');
+    return;
+  }
+  await updateAuthArea();
+  alert('Регистрация успешна');
+  showSection('dashboard');
+});
+
+qs('#doLogin').addEventListener('click', async ()=>{
+  if(!USE_BACKEND) { alert('Бэкенд отключён'); return; }
+  const email = qs('#loginEmail').value.trim().toLowerCase();
+  const pass = qs('#loginPassword').value;
+  if(!email || !pass){ alert('Заполните поля'); return; }
+  const res = await api('/login/', 'POST', { email, password: pass });
+  if(!res.ok){
+    if(res.status === 401) return;
+    alert(res.json && res.json.message ? 'Ошибка: ' + res.json.message : 'Ошибка входа');
+    return;
+  }
+  await updateAuthArea();
+  alert('Вход выполнен');
+  showSection('dashboard');
+});
+
+qs('#btnVerifyRecovery').addEventListener('click', async ()=>{
+  if(!USE_BACKEND) { alert('Бэкенд отключён'); return; }
+  const email = qs('#recEmail').value.trim().toLowerCase();
+  const codeword = qs('#recCodeword').value.trim();
+  const newp = qs('#recPass').value;
+  if(!email || !codeword || !newp){ alert('Заполните поля'); return; }
+  const res = await api('/recover/verify/', 'POST', { email, codeword, new_password: newp });
+  if(!res.ok){
+    if(res.status === 401) return;
+    alert(res.json && res.json.message ? 'Ошибка: ' + res.json.message : 'Ошибка восстановления');
+    return;
+  }
+  alert('Пароль успешно изменён. Войдите в аккаунт.');
+  qs('#authTitle').textContent='Вход';
+  qs('#formLogin').style.display='block'; qs('#formRegister').style.display='none'; qs('#formRecovery').style.display='none';
+  showSection('auth');
+});
+
+/* Auth UI navigation */
+qs('#linkToRecovery').addEventListener('click', ()=>{ qs('#authTitle').textContent='Восстановление пароля'; qs('#formLogin').style.display='none'; qs('#formRegister').style.display='none'; qs('#formRecovery').style.display='block'; showSection('auth'); });
+qs('#backFromAuth').addEventListener('click', ()=> showSection('dashboard'));
+
+/* Page nav */
+qs('#brand').addEventListener('click', ()=> showSection('dashboard'));
+qs('#navDashboard').addEventListener('click', ()=> showSection('dashboard'));
+qs('#navFavs').addEventListener('click', ()=> { showSection('favs'); fetchFavsAndRender(); });
+qs('#openAllTasks').addEventListener('click', ()=> { showSection('tasks'); fetchTasksAndRender(); });
+qs('#openAddTask').addEventListener('click', ()=> { showSection('addtask'); });
+qs('#backToDashboard').addEventListener('click', ()=> showSection('dashboard'));
+qs('#backFromFavs').addEventListener('click', ()=> showSection('dashboard'));
+qs('#backFromSolved').addEventListener('click', ()=> showSection('dashboard'));
+qs('#backFromAdd').addEventListener('click', ()=> showSection('profile'));
+qs('#btnAddOwnFromProfile').addEventListener('click', ()=> showSection('addtask'));
+qs('#btnViewArchive').addEventListener('click', ()=> { showSection('solved'); fetchSolvedAndRender(); });
+qs('#logoutBtn').addEventListener('click', async ()=> { await api('/logout/','POST',{}); handleNotAuth(); showSection('dashboard'); });
+qs('#backFromTaskView').addEventListener('click', ()=> showSection('tasks'));
+
+/* Utility */
+function extractType(title){
+  const m = title.match(/^(Тип\s*\d+)/i);
+  return m ? m[1] : '';
+}
+
+/* TASKS: fetch and render */
+async function fetchTasksAndRender(){
+  const container = qs('#tasksList'); if(!container) return;
+  container.innerHTML = 'Загрузка...';
+  const res = await api('/tasks/', 'GET');
+  if(!res.ok){
+    if(res.status === 401){
+      // при попытке открыть список задач анонимным — показываем страницу входа
+      showLoginWithRegHint();
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = '<div class="muted">Не удалось загрузить задачи с сервера.</div>';
+    return;
+  }
+  const tasks = res.json.tasks || [];
+  renderTasksFromArray(tasks);
+}
+
+function renderTasksFromArray(tasks){
+  const container = qs('#tasksList'); if(!container) return;
+  container.innerHTML = '';
+  if(!tasks.length){ container.innerHTML = '<div class="muted">Нет задач в базе.</div>'; return; }
+  tasks.forEach(t=>{
+    const el = document.createElement('div'); el.className='task';
+    const title = document.createElement('div'); title.className='title'; title.textContent = t.title;
+    const tagText = extractType(t.title);
+    if(tagText){
+      const tag = document.createElement('div'); tag.className='tag'; tag.textContent = tagText;
+      el.appendChild(tag);
+    }
+    const actions = document.createElement('div'); actions.className='actions';
+    const btnSave = document.createElement('button'); btnSave.className='btn ghost'; btnSave.textContent='Сохранить';
+    const btnSolve = document.createElement('button'); btnSolve.className='btn primary'; btnSolve.textContent='Решить';
+
+    // Save: check favorites first (prevent double-save)
+    btnSave.addEventListener('click', async ()=>{
+      // fetch favorites and check
+      const favsRes = await api('/favorites/', 'GET');
+      if(!favsRes.ok){
+        if(favsRes.status === 401){ showLoginWithRegHint(); return; }
+        alert('Не удалось проверить избранное');
+        return;
+      }
+      const favs = favsRes.json.tasks || [];
+      if(favs.some(x=>x.id === t.id)){
+        alert('Задача уже сохранена в избранное');
+        return;
+      }
+      const r = await api(`/task/${t.id}/favorite/`, 'POST', {});
+      if(!r.ok){
+        if(r.status === 401){ showLoginWithRegHint(); return; }
+        alert('Ошибка при сохранении в избранное');
+        return;
+      }
+      alert('Задача сохранена в избранное');
+      fetchFavsAndRender(); fetchTasksAndRender();
+    });
+
+    // Solve -> open task view, show only "Решена"
+    btnSolve.addEventListener('click', ()=> openTaskViewFromObject(t, {showSave:false, showSolve:true, source:'tasks'}));
+
+    actions.appendChild(btnSave); actions.appendChild(btnSolve);
+    el.appendChild(title);
+    el.appendChild(actions);
+    container.appendChild(el);
+  });
+}
+
+/* Open task view with options: showSave (bool), showSolve (bool), source */
+function openTaskViewFromObject(t, opts = { showSave:true, showSolve:true, source: 'generic' }){
+  qs('#viewTaskTitle').textContent = t.title;
+  qs('#viewTaskContent').textContent = t.content;
+  qs('#viewTaskTag').textContent = extractType(t.title);
+
+  const actionsWrap = qs('#viewTaskActions');
+  if(actionsWrap){
+    // Configure visibility based on opts
+    const btnSave = qs('#viewSaveFav');
+    const btnSolve = qs('#viewMarkSolved');
+    if(btnSave) btnSave.style.display = opts.showSave ? 'inline-flex' : 'none';
+    if(btnSolve) btnSolve.style.display = opts.showSolve ? 'inline-flex' : 'none';
+
+    // Save on view shouldn't be used normally (we hide it except in allowed cases)
+    if(btnSave){
+      btnSave.onclick = async ()=>{
+        // same logic as in list: check favorites first
+        const favsRes = await api('/favorites/', 'GET');
+        if(!favsRes.ok){ if(favsRes.status === 401){ showLoginWithRegHint(); return; } alert('Не удалось проверить избранное'); return; }
+        const favs = favsRes.json.tasks || [];
+        if(favs.some(x=>x.id === t.id)){ alert('Задача уже сохранена в избранное'); return; }
+        const r = await api(`/task/${t.id}/favorite/`, 'POST', {});
+        if(!r.ok){ if(r.status === 401){ showLoginWithRegHint(); return; } alert('Ошибка при сохранении'); return; }
+        alert('Задача сохранена в избранное');
+        fetchFavsAndRender(); fetchTasksAndRender();
+      };
+    }
+
+    if(btnSolve){
+      btnSolve.onclick = async ()=>{
+        // check if already solved
+        const solvedRes = await api('/solved/', 'GET');
+        if(!solvedRes.ok){
+          if(solvedRes.status === 401){ showLoginWithRegHint(); return; }
+          alert('Не удалось проверить архив решённых');
+          return;
+        }
+        const solved = solvedRes.json.tasks || [];
+        if(solved.some(x=>x.id === t.id)){
+          alert('Задача уже сохранена в архив решенных');
+          return;
+        }
+        const r = await api(`/task/${t.id}/solve/`, 'POST', {});
+        if(!r.ok){ if(r.status === 401){ showLoginWithRegHint(); return; } alert('Ошибка при отметке как решённой'); return; }
+        alert('Задача отмечена как решённая.');
+        fetchSolvedAndRender(); fetchFavsAndRender(); fetchTasksAndRender(); loadCalendarForCurrentMonth(); renderProfileFromServer();
+        showSection('tasks');
+      };
+    }
+  }
+  showSection('taskView');
+}
+
+/* Favorites list: render with Delete + Open */
+async function fetchFavsAndRender(){
+  const container = qs('#favsList'); if(!container) return;
+  container.innerHTML = 'Загрузка...';
+  const res = await api('/favorites/', 'GET');
+  if(!res.ok){
+    if(res.status === 401){
+      // показать страницу входа вместо вечной "Загрузка..."
+      showLoginWithRegHint();
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = '<div class="muted">Не удалось загрузить избранное.</div>';
+    return;
+  }
+  const tasks = res.json.tasks || [];
+  renderFavsFromArray(tasks);
+}
+function renderFavsFromArray(tasks){
+  const container = qs('#favsList'); if(!container) return;
+  container.innerHTML = '';
+  if(!tasks.length){ container.innerHTML = '<div class="muted">Нет сохранённых задач.</div>'; return; }
+  tasks.forEach(t=>{
+    const el = document.createElement('div'); el.className='task';
+    const title = document.createElement('div'); title.className='title'; title.textContent = t.title;
+    const tag = document.createElement('div'); tag.className='tag'; tag.textContent = extractType(t.title);
+    const actions = document.createElement('div'); actions.className='actions';
+
+    const btnOpen = document.createElement('button'); btnOpen.className='btn ghost'; btnOpen.textContent='Открыть';
+    btnOpen.addEventListener('click', async () => {
+      // open full content but without buttons
+      openTaskViewFromObject(t, { showSave:false, showSolve:false, source:'favs' });
+    });
+
+    const btnDelete = document.createElement('button'); btnDelete.className='btn primary'; btnDelete.textContent='Удалить';
+    btnDelete.addEventListener('click', async ()=>{
+      const r = await api(`/task/${t.id}/favorite/`, 'POST', {});
+      if(!r.ok){
+        if(r.status === 401){ showLoginWithRegHint(); return; }
+        alert('Ошибка при удалении из избранного');
+        return;
+      }
+      // after toggle we expect favorite removed
+      alert('Задача удалена из избранного');
+      fetchFavsAndRender();
+      fetchTasksAndRender();
+    });
+
+    actions.appendChild(btnDelete); actions.appendChild(btnOpen);
+    el.appendChild(tag); el.appendChild(title); el.appendChild(actions);
+    container.appendChild(el);
+  });
+}
+
+/* Solved (archive): show Open button only */
+async function fetchSolvedAndRender(){
+  const container = qs('#solvedList'); if(!container) return;
+  container.innerHTML = 'Загрузка...';
+  const res = await api('/solved/', 'GET');
+  if(!res.ok){
+    if(res.status === 401){
+      showLoginWithRegHint();
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = '<div class="muted">Не удалось загрузить архив.</div>';
+    return;
+  }
+  renderSolvedFromArray(res.json.tasks || []);
+}
+function renderSolvedFromArray(tasks){
+  const container = qs('#solvedList'); if(!container) return;
+  container.innerHTML = '';
+  if(!tasks.length){ container.innerHTML = '<div class="muted">Пока нет решённых задач.</div>'; return; }
+  tasks.forEach(t=>{
+    const el = document.createElement('div'); el.className='task';
+    const title = document.createElement('div'); title.className='title'; title.textContent = t.title;
+    const actions = document.createElement('div'); actions.className='actions';
+    const btnOpen = document.createElement('button'); btnOpen.className='btn ghost'; btnOpen.textContent='Открыть';
+    btnOpen.addEventListener('click', async () => {
+      // open content-only
+      openTaskViewFromObject(t, { showSave:false, showSolve:false, source:'solved' });
+    });
+    actions.appendChild(btnOpen);
+    el.appendChild(title); el.appendChild(actions); container.appendChild(el);
+  });
+}
+
+/* Add new task */
+qs('#btnSubmitNew').addEventListener('click', async ()=>{
+  const title = qs('#newTitle').value.trim(); const content = qs('#newContent').value.trim();
+  if(!title || !content){ alert('Оба поля обязательны'); return; }
+  const res = await api('/tasks/', 'POST', { title, content });
+  if(!res.ok){
+    if(res.status === 401){ showLoginWithRegHint(); return; }
+    alert('Ошибка добавления (сервер вернул ошибку). Попробуйте позже.');
+    return;
+  }
+  alert('Задача добавлена.');
+  qs('#newTitle').value=''; qs('#newContent').value='';
+  fetchTasksAndRender();
+  showSection('tasks');
+});
+
+/* Random task */
+async function getRandomTaskFromServer(){
+  const res = await api('/task/random/', 'GET');
+  if(!res.ok){
+    if(res.status === 401){ showLoginWithRegHint(); return; }
+    if(res.status === 404) alert('Нет доступных задач (все решены)');
+    else alert('Ошибка получения случайной задачи');
+    return;
+  }
+  openTaskViewFromObject(res.json.task, { showSave:false, showSolve:true, source:'random' });
+}
+qs('#btnGetToday').addEventListener('click', getRandomTaskFromServer);
+
+/* ------------------ Calendar: month navigation & rendering ------------------ */
+
+function setMonthTitleAndTotal(year, month, total){
+  const titleEl = qs('#monthTitle'); if(titleEl) titleEl.textContent = MONTH_NAMES[month] + ' ' + year;
+  const totalEl = qs('#monthTotal'); if(totalEl) totalEl.textContent = 'Решено в месяце: ' + String(total);
+}
+
+async function loadCalendarForCurrentMonth(){
+  const grid = qs('#calendarGrid'); if(!grid) return;
+  grid.innerHTML = 'Загрузка...';
+  // fetch calendar days (full map)
+  const res = await api('/calendar/', 'GET');
+  const days = (res.ok && res.json && res.json.days) ? res.json.days : {};
+  // compute month rendering based on calendarState
+  const year = calendarState.year, month = calendarState.month;
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  grid.innerHTML = '';
+  let monthTotal = 0;
+  // render exact number of day cells (1..daysInMonth)
+  for(let dateNum = 1; dateNum <= daysInMonth; dateNum++){
+    const d = new Date(year, month, dateNum);
+    const key = fmtDate(d);
+    const count = parseInt(days[key]||0,10);
+    monthTotal += (count>0?count:0);
+    const cls = (count<=0 ? 'empty' : (count<=1?'g1':(count==2?'g2':(count==3?'g3':'g4'))));
+    const cell = document.createElement('div');
+    cell.className = 'cell ' + cls;
+    const dn = document.createElement('div'); dn.className='day-num'; dn.textContent = dateNum;
+    const dc = document.createElement('div'); dc.className='day-count'; dc.textContent = (count>0?String(count):'');
+    cell.appendChild(dn); cell.appendChild(dc);
+    cell.title = key + (count>0 ? ' — решено: ' + count : ' — нет задач');
+    cell.addEventListener('click', async ()=>{
+      const ans = prompt('Введите количество решённых задач за ' + key + ' (целое >=0):', String(count||0));
+      if(ans===null) return;
+      const n = parseInt(ans,10);
+      if(isNaN(n) || n<0){ alert('Введите целое число >=0'); return; }
+      const r = await api('/calendar/day/', 'POST', { date: key, count: n });
+      if(!r.ok){
+        if(r.status === 401){ showLoginWithRegHint(); return; }
+        alert('Ошибка записи в календарь (возможно неавторизован)');
+        return;
+      }
+      loadCalendarForCurrentMonth();
+      fetchSolvedAndRender();
+      renderProfileFromServer();
+    });
+    grid.appendChild(cell);
+  }
+  setMonthTitleAndTotal(year, month, monthTotal);
+}
+
+/* month controls */
+qs('#monthPrev').addEventListener('click', ()=> {
+  calendarState.month -= 1;
+  if(calendarState.month < 0){ calendarState.month = 11; calendarState.year -= 1; }
+  loadCalendarForCurrentMonth();
+});
+qs('#monthNext').addEventListener('click', ()=> {
+  calendarState.month += 1;
+  if(calendarState.month > 11){ calendarState.month = 0; calendarState.year += 1; }
+  loadCalendarForCurrentMonth();
+});
+
+/* ------------------ Profile & stats ------------------ */
+async function renderProfileFromServer(){
+  const res = await api('/profile/', 'GET');
+  if(!res.ok){
+    renderProfileGuest();
+    return;
+  }
+  const card = qs('#profileCard'); if(!card) return;
+  card.innerHTML = '';
+  if(res.ok && res.json){
+    const data = res.json;
+    card.innerHTML = `<div style="font-weight:900;font-size:18px;">${data.first_name} ${data.last_name}</div>
+      <div class="muted" style="margin-top:8px;">Почта: ${data.email || '—'}</div>
+      <div style="margin-top:12px;"><div class="muted" style="font-size:13px;"></div></div>`;
+    const ug = qs('#userGreeting'); if(ug) ug.textContent = `${data.first_name} ${data.last_name}`;
+  } else {
+    card.innerHTML = `<div style="font-weight:900;font-size:18px;">Гость</div><div class="muted" style="margin-top:8px;">Войдите или зарегистрируйтесь, чтобы синхронизировать прогресс.</div>`;
+    const ug = qs('#userGreeting'); if(ug) ug.textContent = 'Неавторизован';
+  }
+
+  const solvedRes = await api('/solved/', 'GET');
+  const recent = qs('#recentSolved'); if(!recent) return;
+  recent.innerHTML = '';
+  let totalSolved = 0;
+  if(solvedRes.ok && solvedRes.json && Array.isArray(solvedRes.json.tasks)){
+    const arr = solvedRes.json.tasks;
+    totalSolved = arr.length;
+    if(arr.length === 0) recent.innerHTML = '<li class="muted">Пока нет решённых задач.</li>';
+    else arr.slice(0,6).forEach(s => { const li = document.createElement('li'); li.textContent = s.title; recent.appendChild(li); });
+  } else {
+    recent.innerHTML = '<li class="muted">Пока нет решённых задач.</li>';
+  }
+
+  const calRes = await api('/calendar/','GET');
+  const days = (calRes.ok && calRes.json && calRes.json.days) ? calRes.json.days : {};
+  const vals = Object.values(days).map(x=>parseInt(x||0,10));
+  const statSolved = qs('#statSolved'); if(statSolved) statSolved.textContent = String(totalSolved || 0);
+  const statAvg = qs('#statAvg'); if(statAvg) statAvg.textContent = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '0.0';
+  const today = new Date(); let streak=0;
+  for(let i=0;i<365;i++){ const d = new Date(); d.setDate(today.getDate()-i); const key = fmtDate(d); if((days[key]||0) > 0) streak++; else break; }
+  const statStreak = qs('#statStreak'); if(statStreak) statStreak.textContent = String(streak);
+}
+
+function renderProfileGuest() {
+  const card = qs('#profileCard');
+  if(!card) return;
+  card.innerHTML = `
+    <div style="font-weight:900;font-size:18px;">Гость</div>
+    <div class="muted" style="margin-top:8px;">Войдите или зарегистрируйтесь, чтобы синхронизировать прогресс.</div>
+  `;
+  const recent = qs('#recentSolved'); if(recent) recent.innerHTML = '<li class="muted">Пока нет решённых задач.</li>';
+  const statSolved = qs('#statSolved'); if(statSolved) statSolved.textContent = '0';
+  const statAvg = qs('#statAvg'); if(statAvg) statAvg.textContent = '0.0';
+  const statStreak = qs('#statStreak'); if(statStreak) statStreak.textContent = '0';
+  const ug = qs('#userGreeting'); if(ug) ug.textContent = 'Неавторизован';
+}
+
+/* initial load */
+(async function init(){
+  await updateAuthArea();
+  await fetchTasksAndRender();
+  await loadCalendarForCurrentMonth();
+})();
+
+qs('#openProfileExample').addEventListener('click', async ()=> {
+  const res = await api('/profile/', 'GET');
+  if(res.ok && res.json){ renderProfileFromServer(); showSection('profile'); }
+  else { renderProfileGuest(); showSection('profile'); }
+});
+
+/* If backend disabled — info */
+if(!USE_BACKEND) console.warn('Frontend running in mock/offline mode: set USE_BACKEND=true to enable real API calls.');
+</script>
+</body>
+</html>

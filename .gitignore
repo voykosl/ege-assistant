@@ -1,0 +1,89 @@
+# -------------------------
+# Python / bytecode / caches
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# type / test caches
+.mypy_cache/
+.pytest_cache/
+.cache/
+
+# -------------------------
+# Virtual environments
+# -------------------------
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+__pypackages__/
+
+# -------------------------
+# Packaging / build artifacts
+# -------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+*.whl
+*.egg
+
+# -------------------------
+# Flask / runtime / local DB / secrets
+# -------------------------
+# Local SQLite DB(s)
+app.db
+*.sqlite3
+*.db
+
+# Flask instance folder (if used)
+instance/
+
+# env files / secrets
+.env
+.env.*
+*.secret*
+config.json
+
+# Logs
+*.log
+
+# -------------------------
+# Frontend / node
+# -------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# -------------------------
+# IDE / editors
+# -------------------------
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# others
+*.sublime-workspace
+*.sublime-project
+
+# -------------------------
+# OS
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Coverage / reports
+# -------------------------
+.coverage
+coverage.xml
+htmlcov/
