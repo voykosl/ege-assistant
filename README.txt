@@ -1,13 +1,13 @@
 
-Проект "Помощник к ЕГЭ" - локальная сборка (frontend + backend).
+Проект - интерактивный сайт «Помощник к ЕГЭ»
 
 Как запустить (Windows):
 
 1) Распакуйте содержимое архива в папку, например на Рабочий стол:
-   C:\Users\<ВашеИмя>\Desktop\pomoshnik_ege_project
+   C:\Users\<ВашеИмя>\Desktop\ege_project
 
 2) Откройте Командную строку (CMD) и перейдите в папку проекта:
-   cd /d "%USERPROFILE%\Desktop\pomoshnik_ege_project"
+   cd /d "%USERPROFILE%\Desktop\ege_project"
 
 3) Создайте виртуальное окружение и активируйте его:
    py -3 -m venv venv
